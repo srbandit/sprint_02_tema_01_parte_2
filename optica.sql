@@ -24,9 +24,9 @@ CREATE TABLE marca (
 
 CREATE TABLE gafa (
     id INT NOT NULL AUTO_INCREMENT,
-    graduacion_l VARCHAR(10),
-    graduacion_r VARCHAR(10),
-    tipo_montura VARCHAR (40) NOT NULL,
+    graduacion_l FLOAT,
+    graduacion_r FLOAT,
+    tipo_montura  ENUM('flotante', 'pasta', 'metálica') NOT NULL,
     color_montura VARCHAR (40),
     color_vidrio VARCHAR (40),
     precio FLOAT,
@@ -47,7 +47,7 @@ CREATE TABLE cliente (
     id INT NOT NULL AUTO_INCREMENT,
     nombre VARCHAR(45) NOT NULL,
     correo_electronico VARCHAR(45) NOT NULL,
-    fecha_de_registro VARCHAR(45) NOT NULL,
+    fecha_de_registro DATETIME NOT NULL,
     codigo_postal INT,
     telefono INT,
     recomendado_por INT,
@@ -88,14 +88,14 @@ INSERT INTO marca (nombre, id_proveedor) VALUES
 ('Versace', 2);
 
 INSERT INTO gafa (graduacion_l, graduacion_r, tipo_montura, color_montura, color_vidrio, precio, id_marca) VALUES
-('-1.25', '-1.50', 'pasta', 'negro', 'transparente', 120.50, 1),
-('-2.00', '-2.00', 'metálica', 'plateado', 'azul', 150.00, 2),
-('-0.75', '-0.50', 'flotante', 'transparente', 'verde', 200.75, 3),
-('-3.00', '-2.75', 'pasta', 'azul', 'gris', 180.25, 4),
-('-1.50', '-1.75', 'metálica', 'negro', 'marrón', 130.40, 5),
-('-2.25', '-2.50', 'flotante', 'dorado', 'transparente', 210.00, 1),
-('-0.25', '-0.25', 'pasta', 'rojo', 'gris', 90.99, 2),
-('-4.00', '-3.50', 'metálica', 'gris', 'azul', 160.75, 3);
+(-1.25, -1.50, 'pasta', 'negro', 'transparente', 120.50, 1),
+(-2.00, -2.00, 'metálica', 'plateado', 'azul', 150.00, 2),
+(-0.75, -0.50, 'flotante', 'transparente', 'verde', 200.75, 3),
+(-3.00, -2.75, 'pasta', 'azul', 'gris', 180.25, 4),
+(-1.50, -1.75, 'metálica', 'negro', 'marrón', 130.40, 5),
+(-2.25, -2.50, 'flotante', 'dorado', 'transparente', 210.00, 1),
+(-0.25, -0.25, 'pasta', 'rojo', 'gris', 90.99, 2),
+(-4.00, -3.50, 'metálica', 'gris', 'azul', 160.75, 3);
 
 INSERT INTO empleado (nombre) VALUES
 ('Carlos García'),
