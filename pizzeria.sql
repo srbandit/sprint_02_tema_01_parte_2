@@ -17,6 +17,7 @@ CREATE TABLE cliente (
 );
 
 
+
 CREATE TABLE tienda (
     id INT NOT NULL AUTO_INCREMENT,
     direccion VARCHAR(50) NOT NULL,
@@ -27,6 +28,7 @@ CREATE TABLE tienda (
 );
 
 
+
 CREATE TABLE empleado (
     id INT NOT NULL UNIQUE AUTO_INCREMENT,
     id_tienda INT NOT NULL,
@@ -34,9 +36,11 @@ CREATE TABLE empleado (
     apellidos VARCHAR(45) NOT NULL,
     nif VARCHAR(30) NOT NULL,
     telefono INT NOT NULL,
+    tipo_de_empleado ENUM ('cocinero', 'repartidor'),
     PRIMARY KEY (id),
     FOREIGN KEY (id_tienda) REFERENCES tienda(id)
 );
+
 
 
 CREATE TABLE pedido (
@@ -46,7 +50,6 @@ CREATE TABLE pedido (
     id_tienda INT NOT NULL,
     fecha_hora DATETIME NOT NULL,
     tipo_de_pedido ENUM('reparto', 'recoger_en_tienda') NOT NULL,
-    cantidad_de_productos INT NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY(id_cliente) REFERENCES cliente(id),
     FOREIGN KEY(id_empleado) REFERENCES empleado(id),
@@ -54,28 +57,42 @@ CREATE TABLE pedido (
 );
 
 
-CREATE TABLE categoria (
+
+CREATE TABLE tipo_de_producto (
     id INT NOT NULL AUTO_INCREMENT,
-    nombre VARCHAR(30) NOT NULL,
+    nombre ENUM('pizza', 'hamburguesa', 'bebida') NOT NULL,
     PRIMARY KEY (id)
 );
 
 
+
 CREATE TABLE producto (
     id INT NOT NULL AUTO_INCREMENT,
-    id_categoria INT NOT NULL,
+    id_tipo_de_producto INT NOT NULL,
     nombre VARCHAR(30) NOT NULL,
     descripcion VARCHAR(50) NOT NULL,
-    imagen VARCHAR(35),
+    imagen BLOB,
     precio INT NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (id_categoria) REFERENCES categoria(id)
+    FOREIGN KEY (id_tipo_de_producto) REFERENCES tipo_de_producto(id)
 );
+
+
+
+CREATE TABLE categoria_pizza (
+    id INT NOT NULL AUTO_INCREMENT,
+    id_producto INT NOT NULL,
+    nombre VARCHAR(30) NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY(id_producto) REFERENCES producto(id)
+);
+
 
 
 CREATE TABLE pedido_has_productos (
     id_pedidos INT NOT NULL,
     id_productos INT NOT NULL,
+    cantidad INT NOT NULL,
     PRIMARY KEY (id_pedidos, id_productos),
     FOREIGN KEY (id_pedidos) REFERENCES pedido(id),
     FOREIGN KEY (id_productos) REFERENCES producto(id)
@@ -108,64 +125,74 @@ INSERT INTO tienda (direccion, codigo_postal, localidad, provincia) VALUES
 ('Plaza de Granada 25', 18002, 'Granada', 'Granada');
 
 
-INSERT INTO empleado (id_tienda, nombre, apellidos, nif, telefono) VALUES
-(1, 'Laura', 'Martínez Pérez', '12345678A', 612345678),
-(2, 'Pedro', 'García López', '23456789B', 622345678),
-(3, 'Ana', 'Hernández Gómez', '34567890C', 632345678),
-(4, 'Luis', 'Fernández Ruiz', '45678901D', 642345678),
-(5, 'Elena', 'González Díaz', '56789012E', 652345678);
+INSERT INTO empleado (id_tienda, nombre, apellidos, nif, telefono, tipo_de_empleado) VALUES
+(1, 'Laura', 'Martínez Pérez', '12345678A', 612345678,'repartidor'),
+(2, 'Pedro', 'García López', '23456789B', 622345678,'cocinero'),
+(3, 'Ana', 'Hernández Gómez', '34567890C', 632345678,'cocinero'),
+(4, 'Luis', 'Fernández Ruiz', '45678901D', 642345678,'repartidor'),
+(5, 'Elena', 'González Díaz', '56789012E', 652345678,'repartidor');
 
 
-INSERT INTO pedido (id_cliente, id_empleado, id_tienda, fecha_hora, tipo_de_pedido, cantidad_de_productos) VALUES
-(1, 1, 2, '2024-01-15 10:30:00', 'reparto', 3),
-(5, 3, 2, '2024-01-20 14:45:00', 'recoger_en_tienda', 2),
-(7, 4, 5, '2024-02-18 09:20:00', 'reparto', 1),
-(10, 4, 8, '2024-03-10 16:00:00', 'recoger_en_tienda', 3),
-(3, 5, 5, '2024-04-05 11:15:00', 'reparto', 2),
-(6, 1, 10, '2024-05-12 13:30:00', 'recoger_en_tienda',1),
-(6, 2, 10, '2024-05-12 14:35:00', 'recoger_en_tienda',1);
+INSERT INTO pedido (id_cliente, id_empleado, id_tienda, fecha_hora, tipo_de_pedido) VALUES
+(1, 1, 2, '2024-01-15 10:30:00', 'reparto'),
+(5, 3, 2, '2024-01-20 14:45:00', 'recoger_en_tienda'),
+(7, 4, 5, '2024-02-18 09:20:00', 'reparto'),
+(10, 4, 8, '2024-03-10 16:00:00', 'recoger_en_tienda'),
+(3, 5, 5, '2024-04-05 11:15:00', 'reparto'),
+(6, 1, 10, '2024-05-12 13:30:00', 'recoger_en_tienda'),
+(6, 2, 10, '2024-05-12 14:35:00', 'recoger_en_tienda');
 
-INSERT INTO categoria (nombre) VALUES
+
+INSERT INTO tipo_de_producto(nombre) VALUES
 ('pizza'),
 ('hamburguesa'),
 ('bebida');
 
 
 
-INSERT INTO producto (nombre, descripcion, imagen, precio, id_categoria) VALUES
+INSERT INTO producto (nombre, descripcion, imagen, precio, id_tipo_de_producto) VALUES
 ('Margarita', 'Pizza clásica con tomate y queso', 'margarita.jpg', 8, 1),
 ('Pepperoni', 'Pizza con pepperoni y queso', 'pepperoni.jpg', 10, 1),
 ('Hawaiana', 'Pizza con piña y jamón', 'hawaiana.jpg', 9, 1),
 ('Vegetariana', 'Pizza con verduras frescas', 'vegetariana.jpg', 9, 1),
-('Coca Cola', 'Refresco de cola 500ml', 'coca_cola.jpg', 2, 3),
-('Fanta Naranja', 'Refresco de naranja 500ml', 'fanta_naranja.jpg', 2, 3),
-('Agua Mineral', 'Botella de agua 500ml', 'vichy.jpg', 1, 3),
-('Cerveza', 'Cerveza 330ml', 'heineken.jpg', 3, 3),
-('Hamburguesa Clásica', 'Hamburguesa con lechuga y tomate', 'burger_clasica.jpg', 8, 2),
-('Hamburguesa Queso', 'Hamburguesa con queso cheddar', 'burguer_queso.jpg', 9, 2),
-('Hamburguesa BBQ', 'Hamburguesa con salsa barbacoa', 'burger_bbq.jpg', 10, 2),
-('Hamburguesa Vegetariana', 'Hamburguesa de verduras', 'veggie_burger.jpg', 9, 2);
+('Coca Cola', 'Refresco de cola 500ml', 'coca_cola.jpg', 2, 2),
+('Fanta Naranja', 'Refresco de naranja 500ml', 'fanta_naranja.jpg', 2, 2),
+('Agua Mineral', 'Botella de agua 500ml', 'vichy.jpg', 1, 2),
+('Cerveza', 'Cerveza 330ml', 'heineken.jpg', 3, 2),
+('Hamburguesa Clásica', 'Hamburguesa con lechuga y tomate', 'burger_clasica.jpg', 8, 3),
+('Hamburguesa Queso', 'Hamburguesa con queso cheddar', 'burguer_queso.jpg', 9, 3),
+('Hamburguesa BBQ', 'Hamburguesa con salsa barbacoa', 'burger_bbq.jpg', 10, 3),
+('Hamburguesa Vegetariana', 'Hamburguesa de verduras', 'veggie_burger.jpg', 9, 3);
 
 
-INSERT INTO pedido_has_productos (id_pedidos, id_productos) VALUES
-(1, 4),
-(2, 5),
-(3, 7),
-(3, 6),
-(1, 8),
-(1, 3),
-(2, 9);
+INSERT INTO categoria_pizza (nombre, id_producto) VALUES
+('Margarita', 1),
+('Pepperoni', 1),
+('Hawaiana', 1),
+('Vegetariana', 1);
+
+
+
+
+INSERT INTO pedido_has_productos (id_pedidos, id_productos, cantidad) VALUES
+(1, 4, 2),
+(2, 5, 4),
+(3, 7, 1),
+(3, 6, 1),
+(1, 8, 3),
+(1, 3, 1),
+(2, 9, 2);
 
 -- consultas 
 
 
 -- Lista cuántos productos de tipo “Bebidas” se han vendido en una determinada localidad.
 SELECT t.localidad AS localidad,
-        SUM(p.cantidad_de_productos) AS productos
+        SUM(q.cantidad) AS cantidad_de_productos
 FROM tienda t JOIN pedido p ON t.id = p.id_tienda
 INNER JOIN pedido_has_productos q ON p.id = q.id_pedidos
 INNER JOIN producto e ON e.id = q.id_productos
-INNER JOIN categoria n ON n.id = e.id_categoria
+INNER JOIN tipo_de_producto n ON n.id = e.id_tipo_de_producto
 WHERE n.nombre = 'bebida' AND t.localidad = 'Barcelona'
 GROUP BY t.localidad;
 
